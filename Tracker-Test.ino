@@ -114,7 +114,7 @@ void turn_motor(struct Motor motor, uint8_t rotation, uint8_t duration) {
 
 uint8_t get_motor_channel(struct Motor motor, uint8_t rotation)
 {
-  if (rotation = ROT_CW)
+  if (rotation == ROT_CW)
   {
     return motor.CW;
   }
