@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <util/delay.h>
 
 
 
@@ -40,6 +41,11 @@ SolarPanel panels[] =
 {
   {&motors[0], &sensors[0], NULL}
 };
+
+// Delay milliseconds
+#define __DELAY_BACKWARD_COMPATIBLE__
+#define F_CPU 8000000UL // 8MHz ATTiny85
+
 // Signal switch registers ATTiny85 - CD74HC4067
 
 #define S0 0
@@ -111,13 +117,21 @@ uint8_t switch_channel(uint8_t channel)
   return channel;
 }
 
+/*
+ *  This delay uses the avr builtin _delay_ms() which offers a resolution of 1/10th of a ms
+ *  when the delay is above 262.14 ms / F_CPU in MHz. Up to 6.5535 seconds (at which point we have
+ *  the overhead of another loop.)
+ */
 void delay_ms(uint8_t ms)
 {
-  while (0 < ms)
-  {  
-    _delay_ms(1);
-    --ms;
+  if (ms > 6553.5) {
+    while(ms >= 6553.5)
+    {
+      _delay_ms((double)6553.5);
+      ms -= 6553.5;
+    }
   }
+  _delay_ms((double)ms);
 }
 
 void setup() {
