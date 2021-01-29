@@ -121,16 +121,7 @@ uint8_t switch_channel(uint8_t channel)
     when the delay is above 262.14 ms / F_CPU in MHz. Up to 6.5535 seconds (at which point we have
     the overhead of another loop.)
 */
-void delay_us(uint8_t __us)
-{
-  delay_us((double)__us);
-}
-
-void delay_ms(uint8_t __ms)
-{
-  delay_ms((double)__ms);
-}
-void delay_d_ms(double __ms)
+void delay_ms(double __ms)
 {
   uint16_t __ticks;
   double __tmp ;
@@ -154,7 +145,7 @@ void delay_d_ms(double __ms)
   _delay_loop_2(__ticks);
 }
 
-void delay_d_us(double __us)
+void delay_us(double __us)
 {
   uint16_t __ticks;
   double __tmp ;
@@ -183,14 +174,14 @@ void setup() {
 
 void loop() {
 
-  turn_motor(motors[0], ROT_CW, 1000);
-  delay_ms(500);
-  turn_motor(motors[0], ROT_CCW, 1000);
-  delay_ms(500);
+  turn_motor(motors[0], ROT_CW, (double)1000);
+  delay_ms((double)500);
+  turn_motor(motors[0], ROT_CCW, (double)1000);
+  delay_ms((double)500);
 
 }
 
-void turn_motor(struct Motor motor, uint8_t rotation, uint8_t duration) {
+void turn_motor(struct Motor motor, uint8_t rotation, double duration) {
   pinMode(SIG0, OUTPUT);
   digitalWrite(SIG0, LOW);
   if (rotation == ROT_CW)
@@ -200,7 +191,7 @@ void turn_motor(struct Motor motor, uint8_t rotation, uint8_t duration) {
     switch_channel(motor.CCW);
   }
   digitalWrite(SIG0, HIGH);
-  delay_ms(duration);
+  delay_ms((double)duration);
   digitalWrite(SIG0, LOW);
 }
 
