@@ -1,11 +1,44 @@
 #include <stdlib.h>
 
+
+
 struct Motor
 {
-  uint8_t CW; // switch pin assignment for H bridge clockwise
-  uint8_t CCW; // counterclockwise
-} motora;
+  struct SolarPanel *PANEL;
+  uint8_t *CW; // switch pin assignment for H bridge clockwise
+  uint8_t *CCW; // counterclockwise
+};
 
+struct SolarSensor
+{
+  struct SolarPanel *PANEL;
+  uint8_t *EAST; // switch pin assignment for adc input
+  uint8_t *WEST;
+};
+
+struct SolarPanel
+{
+  struct Motor *MOTOR;
+  struct SolarSensor *SOLARSENSOR;
+  uint8_t *POSITION;
+};
+
+extern SolarPanel panels[];
+
+/// INSTANTIATE
+Motor motors[] =
+{
+  {&panels[0], 14, 15}
+};
+
+SolarSensor sensors[] =
+{
+  {&panels[0], 2, 3}
+};
+SolarPanel panels[] =
+{
+  {motors, sensors, NULL}
+};
 // Signal switch registers ATTiny85 - CD74HC4067
 
 #define S0 0
@@ -77,24 +110,31 @@ uint8_t switch_channel(uint8_t channel)
   return channel;
 }
 
+void delay_ms(uint8_t ms)
+{
+  while (0 < ms)
+  {  
+    _delay_ms(1);
+    --ms;
+  }
+}
+
 void setup() {
-  // put your setup code here, to run once:
   pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   switch_channel(0);
-  motora.CW = 14;
-  motora.CCW = 15;
+  motors[0].CW = 14;
+  motors[0].CCW = 15;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
-  turn_motor(motora, ROT_CW, 1000);
-  delay(500);
-  turn_motor(motora, ROT_CCW, 1000);
-  delay(500);
+  turn_motor(motors[0], ROT_CW, 1000);
+  delay_ms(500);
+  turn_motor(motors[0], ROT_CCW, 1000);
+  delay_ms(500);
 
 }
 
@@ -108,7 +148,7 @@ void turn_motor(struct Motor motor, uint8_t rotation, uint8_t duration) {
     switch_channel(motor.CCW);
   }
   digitalWrite(SIG0, HIGH);
-  delay(duration);
+  delay_ms(duration);
   digitalWrite(SIG0, LOW);
 }
 
