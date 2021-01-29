@@ -54,3 +54,10 @@ delay_ms() and delay_us():
   POSSIBILITY OF SUCH DAMAGE. */
 
 /* $Id: delay.h.in 2251 2011-09-14 08:20:33Z joerg_wunsch $ */
+
+
+Statistics thanks to rosettacode
+https://rosettacode.org/wiki/Statistics/Normal_distribution#C
+
+sorting thanks to rosettacode
+https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort#C
