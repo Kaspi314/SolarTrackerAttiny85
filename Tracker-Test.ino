@@ -61,10 +61,7 @@ uint8_t current_channel = 0;
 
 uint8_t switch_channel(uint8_t channel)
 {
-  channel &= 0x0F;
-  if (channel > 15) {
-    return; // Exit if pin is out of scope
-  }
+  channel &= 0x0F; // bitmask limit to 16 channels.
   for (int pin = 0; pin < 4; pin++)
   {
     if (channel & (1 << pin))
