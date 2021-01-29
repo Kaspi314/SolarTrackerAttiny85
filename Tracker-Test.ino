@@ -168,8 +168,6 @@ void setup() {
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   switch_channel(0);
-  motors[0].CW = 14;
-  motors[0].CCW = 15;
 }
 
 void loop() {
