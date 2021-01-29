@@ -35,9 +35,10 @@ SolarSensor sensors[] =
 {
   {&panels[0], 2, 3}
 };
+
 SolarPanel panels[] =
 {
-  {motors, sensors, NULL}
+  {&motors[0], &sensors[0], NULL}
 };
 // Signal switch registers ATTiny85 - CD74HC4067
 
