@@ -61,3 +61,18 @@ https://rosettacode.org/wiki/Statistics/Normal_distribution#C
 
 sorting thanks to rosettacode
 https://rosettacode.org/wiki/Sorting_algorithms/Cocktail_sort#C
+
+picoUART and picoCore thanks to nerdraplh:
+MIT License
+
+Copyright (c) 2020 Ralph Doncaster
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
