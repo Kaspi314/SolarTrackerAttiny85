@@ -130,7 +130,7 @@ void delay_ms(uint8_t __ms)
 {
   delay_ms((double)__ms);
 }
-void delay_ms(double __ms)
+void delay_d_ms(double __ms)
 {
   uint16_t __ticks;
   double __tmp ;
@@ -154,7 +154,7 @@ void delay_ms(double __ms)
   _delay_loop_2(__ticks);
 }
 
-void delay_us(double __us)
+void delay_d_us(double __us)
 {
   uint16_t __ticks;
   double __tmp ;
