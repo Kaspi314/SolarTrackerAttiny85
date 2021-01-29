@@ -121,7 +121,16 @@ uint8_t switch_channel(uint8_t channel)
     when the delay is above 262.14 ms / F_CPU in MHz. Up to 6.5535 seconds (at which point we have
     the overhead of another loop.)
 */
+void delay_us(uint8_t __us)
+{
+  delay_us((double)__us));
+}
+
 void delay_ms(uint8_t __ms)
+{
+  delay_ms((double)__ms));
+}
+void delay_ms(double __ms)
 {
   uint16_t __ticks;
   double __tmp ;
@@ -145,7 +154,7 @@ void delay_ms(uint8_t __ms)
   _delay_loop_2(__ticks);
 }
 
-void delay_us(uint8_t __us)
+void delay_us(double __us)
 {
   uint16_t __ticks;
   double __tmp ;
