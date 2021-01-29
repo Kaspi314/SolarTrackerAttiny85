@@ -123,12 +123,12 @@ uint8_t switch_channel(uint8_t channel)
 */
 void delay_us(uint8_t __us)
 {
-  delay_us((double)__us));
+  delay_us((double)__us);
 }
 
 void delay_ms(uint8_t __ms)
 {
-  delay_ms((double)__ms));
+  delay_ms((double)__ms);
 }
 void delay_ms(double __ms)
 {
