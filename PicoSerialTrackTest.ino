@@ -6,6 +6,9 @@
 // Delay milliseconds
 #define F_CPU 8000000UL
 
+#define DEBUG 1
+#define RX_WAIT 0
+
 
 struct Motor
 {
@@ -38,7 +41,7 @@ Motor motors[] =
 
 Sensor sensors[] =
 {
-  {&panels[0], 2, 3}
+  {&panels[0], 5, 6}
 };
 
 SolarPanel panels[] =
@@ -63,11 +66,12 @@ uint8_t current_channel;
 const int buflen = 20;
 char linebuf[buflen];
 
+float fl_i;
+float fl_aa;
+float fl_ab;
 uint8_t int_i;
-uint8_t int_aa;
-uint8_t int_ab;
 
-char itoa_i[8];
+char dtostrf_i[8];
 
 int readline()
 {
@@ -90,90 +94,115 @@ void setup()
   pinMode(S1, OUTPUT);
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
-  digitalWrite(S0, LOW);
-  digitalWrite(S1, LOW);
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, LOW);
+  switch_channel(0);
 
   // Switch multiplexer to TX output 0001b
-  digitalWrite(S0, HIGH);
+  switch_channel(1);
   prints("\nrxISR line echo\n");
-  digitalWrite(S0, LOW); // back to rx
+  switch_channel(0); // back to rx
 }
 
 void loop()
 {
-  /*
-  if ( purx_dataready() )
+  if (RX_WAIT)
   {
-    readline();
-    // Switch multiplexer to TX output 0001b
-    switch_channel(1);
+    if ( purx_dataready() )
+    {
+      readline();
+      // Switch multiplexer to TX output 0001b
+      switch_channel(1);
 
-    prints("got: ");
-    prints(linebuf);
+      prints("got: ");
+      prints(linebuf);
 
-    switch_channel(0);
+      switch_channel(0);
+    }
   }
-  */
   // Switch multiplexer to analog in - 0010b
-  switch_channel(2);
-  delay(50);
-  int_i = analogRead(A2);
-  int_aa = int_i;
+  switch_channel(panels[0].SENSOR->CW);
+  delay(5);
+  fl_i = analogRead(A2);
+  fl_aa = fl_i;
 
 
   // Switch to TX out from 0010b to 0001b
   switch_channel(1);
-  itoa(int_i, itoa_i, 10);
+  dtostrf(fl_i, 6, 2, dtostrf_i);
   for (int_i = 0; int_i < 7; int_i++) {
-    if (itoa_i[int_i]) {
-      
-      putx(itoa_i[int_i]);
-      
+    if (dtostrf_i[int_i]) {
+
+      putx(dtostrf_i[int_i]);
+
     }
-    itoa_i[int_i] = false;
+    dtostrf_i[int_i] = false;
   }
   putx(',');
-  switch_channel(3);
-  delay(50);
-  int_i = analogRead(A2);
-  int_ab = int_i;
+  switch_channel(panels[0].SENSOR->CCW);
+  delay(5);
+  fl_i = analogRead(A2);
+  fl_ab = fl_i;
 
   // Switch to TX out from 0010b to 0001b
   switch_channel(1);
-  itoa(int_i, itoa_i, 10);
+  dtostrf(fl_i, 6, 2, dtostrf_i);
   for (int_i = 0; int_i < 7; int_i++) {
-    if (itoa_i[int_i]) {
-      
-      putx(itoa_i[int_i]);
-      
+    if (dtostrf_i[int_i]) {
+
+      putx(dtostrf_i[int_i]);
+
     }
-    itoa_i[int_i] = false;
+    dtostrf_i[int_i] = false;
   }
   prints("\r\n");
-  switch_channel(0); // back to rx - 0000b
-  if(int_aa + 15 <= int_ab)
+  if (DEBUG)
   {
-    turn_motor(panels[0].MOTOR, ROT_CW, (double)1000);
-    
-    switch_channel(1);
+    prints("fl cw: ");
+    fl_i = ToFloatAtCompileTime(panels[0].SENSOR->CW);
+    dtostrf(fl_i, 6, 2, dtostrf_i);
+    for (int_i = 0; int_i < 7; int_i++) {
+      if (dtostrf_i[int_i]) {
 
-    prints("mot: cw");
-  } else if(int_aa >= int_ab + 15)
-  {
-    turn_motor(panels[0].MOTOR, ROT_CCW, (double)1000);
-    
-    switch_channel(1);
+        putx(dtostrf_i[int_i]);
 
-    prints("mot: ccw");
-  } else {
-    switch_channel(1);
-    prints("mot: xx");
+      }
+      dtostrf_i[int_i] = false;
+    }
+    prints("\r\n");
+    prints("fl ccw: ");
+    fl_i = ToFloatAtCompileTime(panels[0].SENSOR->CCW);
+    dtostrf(fl_i, 6, 2, dtostrf_i);
+    for (int_i = 0; int_i < 7; int_i++) {
+      if (dtostrf_i[int_i]) {
+
+        putx(dtostrf_i[int_i]);
+
+      }
+      dtostrf_i[int_i] = false;
+    }
   }
   switch_channel(0); // back to rx - 0000b
-  int_aa = 0;
-  int_ab = 0;
+
+  if (fl_aa + 30 <= fl_ab)
+  {
+    turn_motor(panels[0].MOTOR, ROT_CW, (double)1000);
+
+    switch_channel(1);
+
+    prints("mot: cw\r\n");
+  } else if (fl_aa >= fl_ab + 30)
+  {
+    turn_motor(panels[0].MOTOR, ROT_CCW, (double)1000);
+
+    switch_channel(1);
+
+    prints("mot: ccw\r\n");
+  } else {
+    switch_channel(1);
+    prints("mot: xx\r\n");
+  }
+  switch_channel(0); // back to rx - 0000b
+  fl_aa = 0;
+  fl_ab = 0;
 }
 
 /*
@@ -222,7 +251,7 @@ void delay_us(double __us)
   _delay_loop_1(__ticks);
 }
 
-uint8_t switch_channel(uint8_t channel)
+void switch_channel(uint8_t channel)
 {
   channel &= 0x0F; // bitmask limit to 16 channels.
   for (int pin = 0; pin < 4; pin++)
@@ -281,11 +310,11 @@ void read_sensor(Sensor *sensor, uint8_t dir) {
   if ( dir == ROT_CW )
   {
     switch_channel(sensor->CW);
-    int_aa = analogRead(A2);
+    fl_aa = analogRead(A2);
     return;
   } else {
     switch_channel(sensor->CCW);
-    int_ab = analogRead(A2);
+    fl_ab = analogRead(A2);
     return;
   }
   return;
@@ -314,4 +343,13 @@ uint8_t get_motor_channel(Motor *motor, uint8_t rotation)
     return motor->CW;
   }
   return motor->CCW;
+}
+
+float percent_change(float fl_A, float fl_B)
+{
+  return (fl_B - fl_A) / fl_A;
+}
+
+constexpr float ToFloatAtCompileTime(uint8_t u8) {
+  return u8; // implicit conversion to return type
 }
